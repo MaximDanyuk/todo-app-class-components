@@ -13,7 +13,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.setState({
-      tasksData: JSON.parse(localStorage.getItem('tasksData')),
+      tasksData: JSON.parse(localStorage.getItem('tasksData')) || [],
     });
   }
 
