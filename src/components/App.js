@@ -101,6 +101,31 @@ export default class App extends React.Component {
     localStorage.setItem('tasksData', JSON.stringify(newToDo));
   };
 
+  handleStart = (_id) => {
+    const { tasksData } = this.state;
+
+    const newToDo = tasksData.filter((elem) => {
+      if (elem._id === _id) {
+        elem.isPaused = false;
+      }
+      return elem;
+    });
+    this.setState({ tasksData: newToDo });
+  };
+
+  handleStop = (_id, newTime) => {
+    const { tasksData } = this.state;
+
+    const newToDo = tasksData.filter((elem) => {
+      if (elem._id === _id) {
+        elem.totalTime = newTime;
+        elem.isPaused = true;
+      }
+      return elem;
+    });
+    this.setState({ tasksData: newToDo });
+  };
+
   render() {
     const { isSelected, tasksData } = this.state;
     let filteredData = [];
@@ -127,6 +152,8 @@ export default class App extends React.Component {
           handleTaskEdit={(_id, title) =>
             this.handleTaskEdit(_id, title)
           }
+          handleStop={this.handleStop}
+          handleStart={this.handleStart}
         />
         <Footer
           toDoFilter={(status) => this.toDoFilter(status)}

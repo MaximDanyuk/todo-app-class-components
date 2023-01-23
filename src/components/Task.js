@@ -1,4 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
+/* eslint-disable */
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -7,6 +8,7 @@ export default class Task extends React.PureComponent {
     newValue: '', /// setTasksData
     totalValue: this.props.taskText, /// setFiltered
     change: null, /// setIsSelected
+    fullTime: this.props.totalTime,
   };
 
   changeTaskText = (_id, title) => {
@@ -34,13 +36,38 @@ export default class Task extends React.PureComponent {
 
     this.props.handleTaskEdit(this.props._id, newValue);
   };
-  /// First of all, the user sees the totalValue, which takes the value passed from the form
-  /// When editing, the user sees newValue, which becomes equal to totalValue
-  /// When editing or simply closing, the user sees the totalValue
+
+  componentDidUpdate(prevProps, prevstate) {
+    const { isPaused } = this.props;
+    let timeOut = setTimeout(() => {
+      if (!isPaused) {
+        this.setState(({ fullTime }) => {
+          return {
+            fullTime: fullTime >= 1 ? fullTime - 1 : 0,
+          };
+        });
+      }
+    }, 1000);
+    if (isPaused) {
+      clearTimeout(timeOut);
+    }
+  }
+
   render() {
-    const { newValue, totalValue, change } = this.state;
-    const { created, handleTaskDelete, _id, handleTaskDone, status } =
-      this.props;
+    const { newValue, totalValue, change, fullTime } = this.state;
+    const {
+      created,
+      handleTaskDelete,
+      _id,
+      handleTaskDone,
+      status,
+      handleStart,
+      handleStop,
+    } = this.props;
+
+    const timerMin = Math.floor(+fullTime / 60);
+    const timerSec = Math.floor(+fullTime % 60);
+
     return (
       <li className={!status ? 'completed' : ''}>
         <div className="view">
@@ -62,6 +89,25 @@ export default class Task extends React.PureComponent {
               />
               <label>
                 <span className="description">{totalValue}</span>
+                <span className="timer__buttons">
+                  <button
+                    aria-label="button play"
+                    className="icon icon-play"
+                    type="button"
+                    onClick={() => handleStart(_id)}
+                  />
+                  <button
+                    aria-label="button pause"
+                    className="icon icon-pause"
+                    type="button"
+                    onClick={() => handleStop(_id, fullTime)}
+                  />
+                </span>
+                <span className="timer__text">
+                  {timerMin >= 10 ? timerMin : '0' + timerMin}:
+                  {timerSec >= 10 ? timerSec : '0' + timerSec}
+                </span>
+
                 <span className="created">created {created} ago</span>
               </label>
               <button

@@ -1,10 +1,12 @@
+/* eslint-disable */
+
 import nextId from 'react-id-generator';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 export default class NewTaskForm extends React.PureComponent {
-  state = { cardText: '' };
+  state = { cardText: '', timeSec: '', timeMin: '' };
 
   handleCardText = (evt) => {
     this.setState({
@@ -13,13 +15,23 @@ export default class NewTaskForm extends React.PureComponent {
     /// current input value setCardText
   };
 
+  handleCardSec = (evt) => {
+    this.setState({
+      timeSec: +evt.target.value,
+    });
+  };
+
+  handleCardMin = (evt) => {
+    this.setState({
+      timeMin: +evt.target.value,
+    });
+  };
+
   handleAddCardSubmit = (evt) => {
     const { handleAddCard } = this.props;
-    const { cardText } = this.state;
-
-    /// Sending data to the card creation function on submit
+    const { cardText, timeSec, timeMin } = this.state;
     evt.preventDefault();
-    if (!cardText.trim().length) {
+    if (!cardText.trim().length || +timeSec === 0 || +timeMin === 0) {
       return;
     }
 
@@ -29,21 +41,47 @@ export default class NewTaskForm extends React.PureComponent {
       created: `${formatDistanceToNow(new Date())}`,
       /// formatDistanceToNow when created
       status: true,
+      totalTime: timeMin * 60 + timeSec,
+      isPaused: true,
     });
     this.setState({
       cardText: '',
+      timeSec: '',
+      timeMin: '',
     });
   };
 
   render() {
-    const { cardText } = this.state;
+    const { cardText, timeSec, timeMin } = this.state;
     return (
-      <form onSubmit={this.handleAddCardSubmit}>
+      <form
+        onSubmit={this.handleAddCardSubmit}
+        className="new-todo-form"
+      >
+        <input type="submit" hidden />
         <input
           placeholder="What needs to be done?"
           className="new-todo"
           onChange={this.handleCardText}
           value={cardText}
+        />
+        <input
+          className="new-todo-form__timer"
+          placeholder="Min"
+          onChange={this.handleCardMin}
+          value={timeMin}
+          type="number"
+          max={60}
+          min={0}
+        />
+        <input
+          className="new-todo-form__timer"
+          placeholder="Sec"
+          onChange={this.handleCardSec}
+          value={timeSec}
+          max={60}
+          min={0}
+          type="number"
         />
       </form>
     );
