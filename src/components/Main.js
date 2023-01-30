@@ -9,8 +9,7 @@ export default class Main extends React.PureComponent {
       handleTaskDelete,
       handleTaskDone,
       handleTaskEdit,
-      handleStop,
-      handleStart,
+      saveTimerTime,
     } = this.props;
     return (
       <main className="main">
@@ -19,8 +18,7 @@ export default class Main extends React.PureComponent {
           handleTaskDelete={handleTaskDelete}
           handleTaskDone={handleTaskDone}
           handleTaskEdit={handleTaskEdit}
-          handleStop={handleStop}
-          handleStart={handleStart}
+          saveTimerTime={saveTimerTime}
         />
       </main>
     );

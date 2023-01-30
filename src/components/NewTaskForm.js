@@ -1,7 +1,5 @@
 /* eslint-disable */
 
-import nextId from 'react-id-generator';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -31,19 +29,13 @@ export default class NewTaskForm extends React.PureComponent {
     const { handleAddCard } = this.props;
     const { cardText, timeSec, timeMin } = this.state;
     evt.preventDefault();
-    if (!cardText.trim().length || +timeSec === 0 || +timeMin === 0) {
+    if (!cardText.trim().length) {
       return;
     }
 
-    handleAddCard({
-      taskText: cardText,
-      _id: nextId(),
-      created: `${formatDistanceToNow(new Date())}`,
-      /// formatDistanceToNow when created
-      status: true,
-      totalTime: timeMin * 60 + timeSec,
-      isPaused: true,
-    });
+    const fullTime = timeMin * 60 + timeSec;
+    handleAddCard({ cardText: cardText, fullTime: fullTime });
+
     this.setState({
       cardText: '',
       timeSec: '',
@@ -71,6 +63,7 @@ export default class NewTaskForm extends React.PureComponent {
           onChange={this.handleCardMin}
           value={timeMin}
           type="number"
+          maxLength={2}
           max={60}
           min={0}
         />
@@ -79,6 +72,7 @@ export default class NewTaskForm extends React.PureComponent {
           placeholder="Sec"
           onChange={this.handleCardSec}
           value={timeSec}
+          maxLength={2}
           max={60}
           min={0}
           type="number"

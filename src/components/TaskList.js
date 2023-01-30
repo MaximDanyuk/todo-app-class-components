@@ -11,8 +11,7 @@ export default class TaskList extends React.PureComponent {
       handleTaskDelete,
       handleTaskDone,
       handleTaskEdit,
-      handleStop,
-      handleStart,
+      saveTimerTime,
     } = this.props;
     return (
       <ul className="todo-list">
@@ -23,8 +22,7 @@ export default class TaskList extends React.PureComponent {
             handleTaskDelete={handleTaskDelete}
             handleTaskDone={handleTaskDone}
             handleTaskEdit={handleTaskEdit}
-            handleStop={handleStop}
-            handleStart={handleStart}
+            saveTimerTime={saveTimerTime}
           />
         ))}
       </ul>

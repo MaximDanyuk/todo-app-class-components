@@ -3,8 +3,9 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import React from 'react';
-///  когда в active отмечаешь таску как completed - то она должна исчезать из этого фильтра
-/// JSON.parse(localStorage.getItem('tasksData')) тут лучше useEffect заюзать
+import nextId from 'react-id-generator';
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
+
 export default class App extends React.Component {
   state = {
     tasksData: [], /// setTasksData
@@ -40,14 +41,20 @@ export default class App extends React.Component {
     /// add new data in state
   };
 
-  handleAddCard = (data) => {
+  handleAddCard = ({ cardText, fullTime }) => {
+    const newCard = {};
+    newCard.totalTime = fullTime;
+    newCard.taskText = cardText;
+    newCard._id = nextId();
+    newCard.created = `${formatDistanceToNow(new Date())}`;
+    newCard.status = true;
     this.setState(({ tasksData }) => {
-      return { tasksData: [data, ...tasksData] };
+      return { tasksData: [newCard, ...tasksData] };
     });
     /// Add the card(data) to the array
   };
 
-  handleTaskDone = ({ _id }) => {
+  handleTaskDone = ({ _id, newTime }) => {
     const { tasksData } = this.state;
 
     const newToDo = tasksData.filter((elem) => {
@@ -57,6 +64,7 @@ export default class App extends React.Component {
         } else {
           elem.status = true;
         }
+        elem.totalTime = newTime;
       }
 
       return elem;
@@ -98,32 +106,22 @@ export default class App extends React.Component {
     this.setState({
       tasksData: newToDo,
     });
-    localStorage.setItem('tasksData', JSON.stringify(newToDo));
+
+    localStorage.setItem('tasksData', JSON.stringify(tasksData));
   };
 
-  handleStart = (_id) => {
+  saveTimerTime = (_id, newTime) => {
     const { tasksData } = this.state;
-
-    const newToDo = tasksData.filter((elem) => {
-      if (elem._id === _id) {
-        elem.isPaused = false;
-      }
-      return elem;
-    });
-    this.setState({ tasksData: newToDo });
-  };
-
-  handleStop = (_id, newTime) => {
-    const { tasksData } = this.state;
-
     const newToDo = tasksData.filter((elem) => {
       if (elem._id === _id) {
         elem.totalTime = newTime;
-        elem.isPaused = true;
       }
       return elem;
     });
-    this.setState({ tasksData: newToDo });
+
+    this.setState({
+      tasksData: newToDo,
+    });
   };
 
   render() {
@@ -152,8 +150,9 @@ export default class App extends React.Component {
           handleTaskEdit={(_id, title) =>
             this.handleTaskEdit(_id, title)
           }
-          handleStop={this.handleStop}
-          handleStart={this.handleStart}
+          saveTimerTime={(_id, newTime) =>
+            this.saveTimerTime(_id, newTime)
+          }
         />
         <Footer
           toDoFilter={(status) => this.toDoFilter(status)}

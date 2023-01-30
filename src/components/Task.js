@@ -2,80 +2,57 @@
 /* eslint-disable */
 import PropTypes from 'prop-types';
 import React from 'react';
+import Timer from './Timer';
 
 export default class Task extends React.PureComponent {
   state = {
-    newValue: '', /// setTasksData
     totalValue: this.props.taskText, /// setFiltered
     change: null, /// setIsSelected
-    fullTime: this.props.totalTime,
   };
 
-  changeTaskText = (_id, title) => {
+  handleAddCardSubmit = (evt) => {
+    const { totalValue } = this.state;
+    const { handleTaskEdit, _id } = this.props;
+
+    evt.preventDefault();
+
+    handleTaskEdit(_id, totalValue);
     this.setState({
-      newValue: title,
+      change: null,
+    });
+  };
+
+  handleOpenEdit = (_id) => {
+    this.setState({
       change: _id,
     });
   };
 
-  handleCardText = (evt) => {
+  handleNewValue = (evt) => {
     this.setState({
-      newValue: evt.target.value,
+      totalValue: evt.target.value,
     });
   };
-
-  handleAddCardSubmit = (evt) => {
-    const { newValue } = this.state;
-
-    evt.preventDefault();
-
-    this.setState({
-      totalValue: newValue,
-      change: null,
-    });
-
-    this.props.handleTaskEdit(this.props._id, newValue);
-  };
-
-  componentDidUpdate(prevProps, prevstate) {
-    const { isPaused } = this.props;
-    let timeOut = setTimeout(() => {
-      if (!isPaused) {
-        this.setState(({ fullTime }) => {
-          return {
-            fullTime: fullTime >= 1 ? fullTime - 1 : 0,
-          };
-        });
-      }
-    }, 1000);
-    if (isPaused) {
-      clearTimeout(timeOut);
-    }
-  }
 
   render() {
-    const { newValue, totalValue, change, fullTime } = this.state;
+    const { totalValue, change } = this.state;
     const {
       created,
       handleTaskDelete,
       _id,
       handleTaskDone,
       status,
-      handleStart,
-      handleStop,
+      totalTime,
+      saveTimerTime,
     } = this.props;
-
-    const timerMin = Math.floor(+fullTime / 60);
-    const timerSec = Math.floor(+fullTime % 60);
-
     return (
       <li className={!status ? 'completed' : ''}>
         <div className="view">
           {change === _id ? (
             <form onSubmit={this.handleAddCardSubmit}>
               <input
-                onChange={this.handleCardText}
-                value={newValue}
+                onChange={this.handleNewValue}
+                value={totalValue}
               />
               <input type="submit" value="Сохранить" />
             </form>
@@ -85,36 +62,26 @@ export default class Task extends React.PureComponent {
                 className="toggle"
                 type="checkbox"
                 defaultChecked={!status}
-                onClick={() => handleTaskDone({ _id })}
+                onClick={() => handleTaskDone({ _id, totalTime })}
               />
               <label>
                 <span className="description">{totalValue}</span>
-                <span className="timer__buttons">
-                  <button
-                    aria-label="button play"
-                    className="icon icon-play"
-                    type="button"
-                    onClick={() => handleStart(_id)}
-                  />
-                  <button
-                    aria-label="button pause"
-                    className="icon icon-pause"
-                    type="button"
-                    onClick={() => handleStop(_id, fullTime)}
-                  />
-                </span>
-                <span className="timer__text">
-                  {timerMin >= 10 ? timerMin : '0' + timerMin}:
-                  {timerSec >= 10 ? timerSec : '0' + timerSec}
-                </span>
-
+                <Timer
+                  totalTime={totalTime}
+                  _id={_id}
+                  status={status}
+                  saveTimerTime={saveTimerTime}
+                />
                 <span className="created">created {created} ago</span>
               </label>
               <button
                 aria-label="edit toDo"
                 type="button"
                 className="icon icon-edit"
-                onClick={() => this.changeTaskText(_id, totalValue)}
+                onClick={() => {
+                  this.handleOpenEdit(_id);
+                  saveTimerTime(_id, totalTime);
+                }}
               />
               <button
                 type="button"
